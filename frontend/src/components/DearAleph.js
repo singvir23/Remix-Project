@@ -10,7 +10,8 @@ function DearAleph() {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post('http://localhost:5001/api/generate', { prompt: input });
+      // Replace the localhost URL with your deployed Vercel backend URL
+      const res = await axios.post('https://your-backend.vercel.app/api/generate', { prompt: input });
       setResponse(res.data.response);
     } catch (error) {
       console.error('Error fetching response:', error.message);
