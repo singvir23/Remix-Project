@@ -12,7 +12,22 @@ const openai = new OpenAI({
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000', // Local dev URL
+      'https://remix-project-ndpefmmtc-singvir23s-projects.vercel.app' // Production URL
+    ];
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
+
 app.use(express.json());
 
 // Route to handle the OpenAI API request
