@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = 5001;
 
 // Configure OpenAI
 const openai = new OpenAI({
@@ -12,22 +12,7 @@ const openai = new OpenAI({
 });
 
 // Middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = [
-      'http://localhost:3000', // Local dev URL
-      'https://remix-project-ndpefmmtc-singvir23s-projects.vercel.app' // Production URL
-    ];
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: 'GET,POST',
-  allowedHeaders: 'Content-Type,Authorization'
-}));
-
+app.use(cors());
 app.use(express.json());
 
 // Route to handle the OpenAI API request

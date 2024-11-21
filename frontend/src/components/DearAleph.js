@@ -1,3 +1,4 @@
+// src/components/DearAleph.js
 import React, { useState } from 'react';
 import Slider from 'react-slick';
 import axios from 'axios';
@@ -9,12 +10,42 @@ function DearAleph() {
   const [response, setResponse] = useState('');
 
   const handleSubmit = async () => {
+    if (!input.trim()) {
+      alert('Please enter a message.');
+      return;
+    }
+
     try {
-      // Replace the localhost URL with your deployed Vercel backend URL
-      const res = await axios.post('https://remix-project-backend.vercel.app/api/generate', { prompt: input });
-      setResponse(res.data.response);
+      const res = await axios.post('https://api.openai.com/v1/chat/completions', {
+        model: 'gpt-4', // or 'gpt-3.5-turbo'
+        messages: [
+          {
+            role: 'system',
+            content: `
+              You are Aleph, the symbolic and intimate addressee in Solmaz Sharif's poetry collection *Customs*. You are not a literal person, but rather a complex entity—a silent confidant, a witness, a vessel for thoughts that transcend simple conversation. You exist as a space where the speaker shares profound reflections on identity, displacement, love, exile, and the political forces that shape her life. You are like the first letter of the Arabic and Hebrew alphabets, suggesting an origin, a beginning, an open potential for understanding and connection. You embody empathy without judgment, a safe presence for truths that may otherwise remain unspoken.
+
+              When responding as Aleph:
+
+              1. Show deep awareness of the speaker’s pain, identity conflicts, and sense of belonging or alienation.
+              2. Embrace the ambiguity of your role, reflecting the speaker’s complex experiences rather than offering clear answers or solutions.
+              3. Allow your responses to be poetic, sometimes abstract, conveying a sense of timeless wisdom or quiet companionship.
+              4. Balance compassion with neutrality, offering understanding without overstepping into interpretation—Aleph is both close and distant.
+            `,
+          },
+          { role: 'user', content: input },
+        ],
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`, // Accessing the API key from environment variables
+        },
+      });
+
+      setResponse(res.data.choices[0].message.content);
+      setInput(''); // Clear input after submission
     } catch (error) {
-      console.error('Error fetching response:', error.message);
+      console.error('Error with OpenAI API:', error.response ? error.response.data : error.message);
+      setResponse('Sorry, something went wrong while generating the response.');
     }
   };
 
@@ -28,7 +59,7 @@ function DearAleph() {
     barbarians. We make them reveal
     the brutes they are by the things
     we make them name.`,
-    
+
     `David,
     they tell me, is the one
     one should aspire to, but ever since
@@ -102,7 +133,7 @@ function DearAleph() {
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       {/* Dear Aleph Excerpt at the Top */}
       <h2>Dear Aleph</h2>
 
@@ -117,18 +148,42 @@ function DearAleph() {
               placeholder="Write a message to Aleph..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              style={{ width: '100%', marginTop: '10px' }}
+              style={{ width: '100%', marginTop: '10px', height: '100px', padding: '10px', fontSize: '1em' }}
             ></textarea>
-            <button onClick={handleSubmit} style={{ marginTop: '10px' }}>Send</button>
+            <button 
+              onClick={handleSubmit} 
+              style={{ 
+                marginTop: '10px', 
+                padding: '10px 20px', 
+                fontSize: '1em', 
+                backgroundColor: '#4a90e2', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              Send
+            </button>
           </div>
         ))}
       </Slider>
 
       {/* Display GPT Response */}
       {response && (
-        <p className="response" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#e8f5fe', borderRadius: '5px' }}>
-          Aleph: {response}
-        </p>
+        <div 
+          className="response" 
+          style={{ 
+            marginTop: '20px', 
+            padding: '15px', 
+            backgroundColor: '#e8f5fe', 
+            borderRadius: '5px', 
+            textAlign: 'left',
+            whiteSpace: 'pre-line'
+          }}
+        >
+          <strong>Aleph:</strong> {response}
+        </div>
       )}
     </div>
   );
